@@ -1,0 +1,57 @@
+# Node/Electron
+node_modules/
+dist/
+build/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+.env
+.env.*
+.cache/
+
+# C++ build
+*.o
+*.obj
+*.exe
+*.out
+*.a
+*.so
+*.dll
+cpp-service
+cpp-service.exe
+
+# VSCode
+.vscode/
+
+# OS
+Thumbs.db
+Desktop.ini
+
+# Storybook/Playwright
+*.snap
+*.report
+*.png
+*.diff.png
+
+# Electron
+*.asar
+
+# Misc
+*.swp
+*.swo
+.idea/
+*.iml
+
+# Test/coverage
+coverage/
+*.lcov
+
+# Local DB/NoSQL
+*tasks_db.json
+!electron-app/tasks_db.json
+
+# Ignore generated story screenshots
+UI-tests-electron/storybook-electron/screenshots/
+UI-tests-electron/storybook-electron/__snapshots__/

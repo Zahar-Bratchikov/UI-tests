@@ -1,0 +1,23 @@
+{
+  "name": "ui-tests",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/Zahar-Bratchikov/UI-tests.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Zahar-Bratchikov/UI-tests/issues"
+  },
+  "homepage": "https://github.com/Zahar-Bratchikov/UI-tests#readme",
+  "devDependencies": {
+    "electron": "^36.5.0"
+  }
+}

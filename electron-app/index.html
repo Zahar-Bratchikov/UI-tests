@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Task Manager</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <h1>Task Manager</h1>
+    <div>
+      <button onclick="showCreateForm()">Создать задачу</button>
+      <div id="tasks"></div>
+    </div>
+    <div id="form" style="display:none; margin-top:20px;">
+      <h3 id="formTitle">Создать задачу</h3>
+      <input id="title" placeholder="Заголовок"><br>
+      <textarea id="desc" placeholder="Описание"></textarea><br>
+      <select id="status">
+        <option value="open">Открыта</option>
+        <option value="done">Выполнена</option>
+      </select><br>
+      <button onclick="submitForm()">Сохранить</button>
+      <button onclick="hideForm()">Отмена</button>
+    </div>
+    <script>
+      let editingId = null;
+      function fetchTasks() {
+        fetch('http://localhost:8081/tasks')
+          .then(r => r.json())
+          .then(list => {
+            renderTasksTable(list);
+          });
+      }
+      function renderTasksTable(list) {
+        if (!Array.isArray(list) || list.length === 0) {
+          document.getElementById('tasks').innerHTML = '<div style="text-align:center;color:#888;margin:32px 0;">Нет задач</div>';
+          return;
+        }
+        let html = '<table><thead><tr><th>ID</th><th>Заголовок</th><th>Описание</th><th>Статус</th><th>Действия</th></tr></thead><tbody>';
+        for (const t of list) {
+          html += `<tr><td>${t.id}</td><td>${escapeHtml(t.title)}</td><td>${escapeHtml(t.description)}</td><td>${escapeHtml(t.status)}</td><td>` +
+            `<button class="action-btn edit" onclick='editTask(${t.id})'>Изменить</button>` +
+            `<button class="action-btn delete" onclick='deleteTask(${t.id})'>Удалить</button>` +
+            (t.status !== 'done' ? `<button class="action-btn" onclick='markDone(${t.id})'>Выполнено</button>` : '') +
+            `</td></tr>`;
+        }
+        html += '</tbody></table>';
+        document.getElementById('tasks').innerHTML = html;
+      }
+      function escapeHtml(text) {
+        if (!text) return '';
+        return text.replace(/[&<>"']/g, function(m) {
+          return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'})[m];
+        });
+      }
+      function showCreateForm() {
+        editingId = null;
+        document.getElementById('formTitle').innerText = 'Создать задачу';
+        document.getElementById('title').value = '';
+        document.getElementById('desc').value = '';
+        document.getElementById('status').value = 'open';
+        document.getElementById('form').style.display = '';
+      }
+      function hideForm() {
+        document.getElementById('form').style.display = 'none';
+      }
+      function submitForm() {
+        const data = {
+          title: document.getElementById('title').value.trim(),
+          description: document.getElementById('desc').value.trim(),
+          status: document.getElementById('status').value
+        };
+        if (!data.title) {
+          alert('Заголовок не может быть пустым');
+          return;
+        }
+        const url = editingId ? `http://localhost:8081/tasks/${editingId}` : 'http://localhost:8081/tasks';
+        const method = editingId ? 'PUT' : 'POST';
+        fetch(url, {
+          method,
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(data)
+        })
+        .then(r => {
+          if (!r.ok) throw new Error('Ошибка сохранения');
+          return r.json().catch(() => ({}));
+        })
+        .then(() => {
+          hideForm();
+          fetchTasks();
+        })
+        .catch(e => alert(e.message));
+      }
+      function editTask(id) {
+        fetch(`http://localhost:8081/tasks/${id}`)
+          .then(r => r.json())
+          .then(t => {
+            editingId = id;
+            document.getElementById('formTitle').innerText = 'Изменить задачу';
+            document.getElementById('title').value = t.title;
+            document.getElementById('desc').value = t.description;
+            document.getElementById('status').value = t.status;
+            document.getElementById('form').style.display = '';
+          });
+      }
+      function deleteTask(id) {
+        if (!confirm('Удалить задачу?')) return;
+        fetch(`http://localhost:8081/tasks/${id}`, {method: 'DELETE'})
+          .then(r => {
+            if (!r.ok) throw new Error('Ошибка удаления');
+            fetchTasks();
+          })
+          .catch(e => alert(e.message));
+      }
+      function markDone(id) {
+        fetch(`http://localhost:8081/tasks/${id}`)
+          .then(r => r.json())
+          .then(t => {
+            if (t.status === 'done') return;
+            t.status = 'done';
+            fetch(`http://localhost:8081/tasks/${id}`, {
+              method: 'PUT',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify(t)
+            })
+            .then(r => {
+              if (!r.ok) throw new Error('Ошибка обновления');
+              fetchTasks();
+            })
+            .catch(e => alert(e.message));
+          });
+      }
+      fetchTasks();
+    </script>
+  </body>
+</html>
