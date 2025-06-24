@@ -1,12 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getAllStories, getComponentProps } from './storiesLoader';
 
-// StoryConstructorPanel: визуальный редактор stories
 const StoryConstructorPanel: React.FC = () => {
   const [selectedStory, setSelectedStory] = useState<string>('');
   const [variantName, setVariantName] = useState<string>('CustomVariant');
   const [propsState, setPropsState] = useState<Record<string, any>>({});
   const [codePreview, setCodePreview] = useState<string>('');
+  const [appPath, setAppPath] = useState<string>('');
+
+  useEffect(() => {
+    window.electronAPI?.getAppPath?.().then((path: string) => setAppPath(path));
+  }, []);
 
   const stories: Array<{ name: string }> = getAllStories();
 
@@ -33,15 +37,11 @@ const StoryConstructorPanel: React.FC = () => {
   };
 
   const handleOpenInWindow = () => {
-    // Открыть новое окно Electron с передачей выбранной story и props
-    // Для этого потребуется ipcRenderer.invoke('open-story-window', { story: selectedStory, props: propsState })
-    // Реализация в main process Electron
     window.electronAPI?.openStoryWindow?.({ story: selectedStory, props: propsState });
   };
 
   const handleSaveStory = () => {
     if (!selectedStory || !variantName || !codePreview) return;
-    // Отправить код на main process для сохранения
     window.electronAPI?.saveStoryFile?.({
       story: selectedStory,
       variant: variantName,
@@ -49,12 +49,21 @@ const StoryConstructorPanel: React.FC = () => {
     });
   };
 
-  // Получить список props для выбранной story
+  const handleAppPathChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setAppPath(e.target.value);
+    window.electronAPI?.setAppPath?.(e.target.value);
+  };
+
   const propsList = selectedStory ? getComponentProps(selectedStory) : [];
 
   return (
     <div style={{ padding: 16 }}>
       <h2>Story Constructor</h2>
+      <div style={{ marginBottom: 12 }}>
+        <label>Путь к тестируемому Electron-приложению:&nbsp;
+          <input type="text" value={appPath} onChange={handleAppPathChange} style={{ width: 320 }} />
+        </label>
+      </div>
       <div>
         <label>Компонент:&nbsp;
           <select value={selectedStory} onChange={handleStoryChange}>
@@ -94,14 +103,5 @@ const StoryConstructorPanel: React.FC = () => {
     </div>
   );
 };
-
-declare global {
-  interface Window {
-    electronAPI?: {
-      openStoryWindow?: (data: any) => void;
-      saveStoryFile?: (data: { story: string; variant: string; code: string }) => void;
-    };
-  }
-}
 
 export default StoryConstructorPanel;

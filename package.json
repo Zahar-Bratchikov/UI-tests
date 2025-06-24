@@ -19,5 +19,8 @@
   "homepage": "https://github.com/Zahar-Bratchikov/UI-tests#readme",
   "devDependencies": {
     "electron": "^36.5.0"
+  },
+  "dependencies": {
+    "playwright": "^1.53.1"
   }
 }

@@ -1,7 +1,182 @@
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
-    Arial, sans-serif;
-  margin: auto;
-  max-width: 38rem;
-  padding: 2rem;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  margin: 0;
+  background: #f4f6fa;
+}
+
+/* Sidebar */
+.test-sidebar {
+  width: 260px;
+  background: #23272f;
+  color: #fff;
+  padding: 36px 24px 24px 24px;
+  height: 100vh;
+  box-shadow: 2px 0 16px #0001;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+.test-sidebar h2 {
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 24px;
+  letter-spacing: 1px;
+}
+.test-sidebar input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: none;
+  background: #181b20;
+  color: #fff;
+  font-size: 15px;
+  margin-bottom: 18px;
+}
+.test-sidebar button {
+  width: 100%;
+  border: none;
+  border-radius: 8px;
+  padding: 13px 0;
+  font-weight: 700;
+  font-size: 16px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px #0002;
+  transition: background 0.2s, opacity 0.2s;
+}
+.test-sidebar .save-btn {
+  background: #2d72d9;
+  color: #fff;
+}
+.test-sidebar .run-btn {
+  background: #43a047;
+  color: #fff;
+}
+.test-sidebar .run-btn[disabled] {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Main area */
+.test-main {
+  margin-left: 260px;
+  min-height: 100vh;
+  padding: 56px 0 0 0;
+  background: #f4f6fa;
+}
+.test-container {
+  max-width: 720px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 32px #0001;
+  padding: 44px 40px 36px 40px;
+}
+.test-title {
+  text-align: center;
+  margin-bottom: 36px;
+  font-weight: 900;
+  font-size: 30px;
+  letter-spacing: 1px;
+  color: #23272f;
+}
+
+/* Add step form */
+.test-add-step {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 36px;
+}
+.test-add-step select,
+.test-add-step input {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #d0d4db;
+  font-size: 15px;
+  background: #f7f8fa;
+}
+.test-add-step input[type="text"] {
+  width: 180px;
+}
+.test-add-step input[type="text"].value-input {
+  width: 120px;
+}
+.test-add-step button {
+  background: #2d72d9;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 22px;
+  font-weight: 700;
+  font-size: 15px;
+  box-shadow: 0 2px 8px #0002;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.test-add-step button.screenshot-btn {
+  background: #4caf50;
+}
+
+/* Steps list */
+.test-steps-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.test-step-item {
+  margin-bottom: 14px;
+  background: #f7f8fa;
+  border-radius: 10px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 1px 4px #0001;
+  border: 1px solid #e0e3e8;
+  cursor: grab;
+  opacity: 1;
+  transition: background 0.2s, opacity 0.2s;
+}
+.test-step-item.dragged {
+  background: #e3f2fd;
+  opacity: 0.7;
+}
+.test-step-type {
+  font-weight: 800;
+  color: #2d72d9;
+  min-width: 90px;
+}
+.test-step-type.screenshot {
+  color: #4caf50;
+}
+.test-step-desc {
+  color: #555;
+  font-size: 15px;
+}
+.test-step-remove {
+  background: none;
+  border: none;
+  color: #d32f2f;
+  cursor: pointer;
+  font-size: 22px;
+  margin-left: auto;
+  transition: color 0.2s;
+}
+.test-step-remove:hover {
+  color: #b71c1c;
+}
+
+.test-empty {
+  color: #aaa;
+  font-size: 15px;
+  margin-bottom: 16px;
+}
+
+.test-footer {
+  text-align: center;
+  color: #888;
+  font-size: 15px;
+  margin-top: 32px;
 }

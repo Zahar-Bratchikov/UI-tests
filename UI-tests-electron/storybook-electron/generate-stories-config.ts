@@ -35,13 +35,3 @@ function getAllStories() {
 const config = getAllStories();
 fs.writeFileSync(OUT_PATH, JSON.stringify(config, null, 2));
 console.log('stories.config.json updated:', config);
-
-// tsconfig.json
-{
-  "compilerOptions": {
-    "module": "commonjs",
-    "esModuleInterop": true,
-    "resolveJsonModule": true,
-    "target": "es2019"
-  }
-}

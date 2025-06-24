@@ -1,6 +1,6 @@
 // playwright-visual-regression.ts
 // Скрипт для headless-снятия и сравнения скриншотов stories через Playwright
-import { chromium, Browser, Page } from 'playwright';
+import { _electron as electron, ElectronApplication, Page } from 'playwright';
 import fs from 'fs';
 import pixelmatch from 'pixelmatch';
 import { PNG } from 'pngjs';
@@ -26,6 +26,14 @@ function getStoriesList(): StoryConfig[] {
   ];
 }
 
+const configPath = './test-app.config.json';
+function getElectronAppPath(): string {
+  if (fs.existsSync(configPath)) {
+    return JSON.parse(fs.readFileSync(configPath, 'utf-8')).electronAppPath || '';
+  }
+  return '';
+}
+
 async function ensureDir(dir: string) {
   if (!fs.existsSync(dir)) fs.mkdirSync(dir);
 }
@@ -49,8 +57,10 @@ async function compareScreenshots(baselinePath: string, currentPath: string, dif
 
 async function run() {
   await ensureDir(DIFFS_DIR);
-  const browser: Browser = await chromium.launch();
-  const page: Page = await browser.newPage();
+  const electronAppPath = getElectronAppPath();
+  if (!electronAppPath) throw new Error('Не указан путь к тестируемому Electron-приложению в test-app.config.json');
+  const electronApp: ElectronApplication = await electron.launch({ args: [electronAppPath] });
+  const page: Page = await electronApp.firstWindow();
 
   const stories = getStoriesList();
 
@@ -68,7 +78,7 @@ async function run() {
       console.log(`${name}: Baseline created.`);
     }
   }
-  await browser.close();
+  await electronApp.close();
 }
 
 run();

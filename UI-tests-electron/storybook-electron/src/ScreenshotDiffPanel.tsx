@@ -1,6 +1,4 @@
 import React from 'react';
-import pixelmatch from 'pixelmatch';
-import { PNG } from 'pngjs';
 
 export function ScreenshotDiffPanel({
   baseline,
@@ -11,30 +9,11 @@ export function ScreenshotDiffPanel({
 }) {
   const [diffUrl, setDiffUrl] = React.useState<string | null>(null);
   React.useEffect(() => {
-    if (!baseline || !current) return;
+    if (!baseline || !current || !window.electronAPI?.compareScreenshots) return setDiffUrl(null);
     let cancelled = false;
-    (async () => {
-      // Декодируем base64 PNG
-      function decode(dataUrl: string) {
-        const bin = atob(dataUrl.split(',')[1]);
-        // Преобразуем Uint8Array в Node.js Buffer для PNG.sync.read
-        const arr = new Uint8Array(bin.length);
-        for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
-        // @ts-ignore
-        return PNG.sync.read(Buffer.from(arr));
-      }
-      try {
-        const img1 = decode(baseline);
-        const img2 = decode(current);
-        const { width, height } = img1;
-        const diff = new PNG({ width, height });
-        pixelmatch(img1.data, img2.data, diff.data, width, height, { threshold: 0.1 });
-        const diffBuffer = PNG.sync.write(diff);
-        if (!cancelled) setDiffUrl('data:image/png;base64,' + btoa(String.fromCharCode(...diffBuffer)));
-      } catch (e) {
-        if (!cancelled) setDiffUrl(null);
-      }
-    })();
+    window.electronAPI.compareScreenshots({ baseline, current }).then((url: string | null) => {
+      if (!cancelled) setDiffUrl(url);
+    });
     return () => { cancelled = true; };
   }, [baseline, current]);
   if (!baseline || !current) return null;

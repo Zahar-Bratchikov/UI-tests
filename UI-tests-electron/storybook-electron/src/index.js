@@ -1,5 +1,8 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('node:path');
+const { PNG } = require('pngjs');
+const pixelmatch = require('pixelmatch');
+const { dialog } = require('electron');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -20,7 +23,7 @@ const createWindow = () => {
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
 
   // In production, you might want to load the bundled React app:
   // mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
@@ -62,7 +65,7 @@ ipcMain.handle('open-story-window', async (event, { story, props }) => {
   // Передаем story и props через query params
   const url = `file://${path.join(__dirname, 'index.html')}?story=${encodeURIComponent(story)}&props=${encodeURIComponent(JSON.stringify(props))}`;
   await win.loadURL(url);
-  win.webContents.openDevTools();
+  // win.webContents.openDevTools();
 });
 
 // Сохранение/обновление stories в src/stories/custom
@@ -87,6 +90,54 @@ ipcMain.handle('save-story-file', async (event, { story, variant, code }) => {
   }
   fs.writeFileSync(filePath, content);
   return { ok: true, filePath };
+});
+
+function decodeBase64Png(dataUrl) {
+  const bin = Buffer.from(dataUrl.split(',')[1], 'base64');
+  return PNG.sync.read(bin);
+}
+
+ipcMain.handle('compare-screenshots', async (event, { baseline, current }) => {
+  try {
+    const img1 = decodeBase64Png(baseline);
+    const img2 = decodeBase64Png(current);
+    const { width, height } = img1;
+    const diff = new PNG({ width, height });
+    pixelmatch(img1.data, img2.data, diff.data, width, height, { threshold: 0.1 });
+    const diffBuffer = PNG.sync.write(diff);
+    return 'data:image/png;base64,' + diffBuffer.toString('base64');
+  } catch (e) {
+    return null;
+  }
+});
+
+const configPath = path.join(__dirname, '..', 'test-app.config.json');
+
+ipcMain.handle('get-app-path', () => {
+  const fs = require('fs');
+  if (fs.existsSync(configPath)) {
+    return JSON.parse(fs.readFileSync(configPath, 'utf-8')).electronAppPath || '';
+  }
+  return '';
+});
+ipcMain.handle('set-app-path', (event, appPath) => {
+  const fs = require('fs');
+  fs.writeFileSync(configPath, JSON.stringify({ electronAppPath: appPath }, null, 2));
+  return true;
+});
+
+// Открытие диалога выбора файла приложения
+ipcMain.handle('open-file-dialog', async () => {
+  const { canceled, filePaths } = await dialog.showOpenDialog({
+    title: 'Выберите исполняемый файл Electron-приложения',
+    properties: ['openFile'],
+    filters: [
+      { name: 'Исполняемые файлы', extensions: process.platform === 'win32' ? ['exe'] : ['AppImage', 'app', 'sh', '*'] },
+      { name: 'Все файлы', extensions: ['*'] },
+    ],
+  });
+  if (canceled || !filePaths.length) return null;
+  return filePaths[0];
 });
 
 // In this file you can include the rest of your app's specific main process

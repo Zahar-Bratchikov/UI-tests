@@ -2,7 +2,7 @@
   "name": "storybook-electron",
   "productName": "storybook-electron",
   "version": "1.0.0",
-  "description": "My Electron application description",
+  "description": "Storybook-like visual regression tool for Electron UI",
   "main": "src/index.js",
   "scripts": {
     "start": "electron-forge start",
@@ -10,9 +10,15 @@
     "package": "electron-forge package",
     "make": "electron-forge make",
     "lint": "tsc --noEmit",
-    "generate:stories-config": "ts-node generate-stories-config.ts"
+    "generate:stories-config": "ts-node generate-stories-config.ts",
+    "test:visual": "ts-node playwright-visual-regression.ts"
   },
-  "keywords": [],
+  "keywords": [
+    "storybook",
+    "electron",
+    "visual-regression",
+    "ui-testing"
+  ],
   "author": {
     "name": "Zahar-Bratchikov",
     "email": "zaharbratcikov09817@gmail.com"
@@ -47,6 +53,7 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3",
     "webpack": "^5.99.9",
-    "webpack-cli": "^6.0.1"
+    "webpack-cli": "^6.0.1",
+    "playwright": "^1.44.0"
   }
 }
