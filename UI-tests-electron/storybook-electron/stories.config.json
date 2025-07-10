@@ -1,4 +1,0 @@
-[
-  { "url": "http://localhost:3000?story=UI/Button&variant=Default", "name": "Button-Default" },
-  { "url": "http://localhost:3000?story=UI/Button&variant=WithAction", "name": "Button-WithAction" }
-]
